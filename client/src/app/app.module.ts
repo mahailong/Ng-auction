@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule }   from '@angular/router';
-import { FormsModule ,ReactiveFormsModule}    from '@angular/forms';
+import { FormsModule ,ReactiveFormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { HttpModule }   from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './navbar/navbar.component';
@@ -14,6 +15,7 @@ import { ProductDetailComponent } from './product-detail/product-detail.componen
 import { HomeComponent } from './home/home.component';
 
 import { ProductService } from './shared/product.service';
+import { WebSocketService } from './shared/web-socket.service'
 import { FilterPipe } from './pipe/filter.pipe'
 
 
@@ -33,6 +35,7 @@ import { FilterPipe } from './pipe/filter.pipe'
   imports: [
     BrowserModule,
     FormsModule,
+    HttpModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
       {
@@ -44,7 +47,7 @@ import { FilterPipe } from './pipe/filter.pipe'
       }
     ])
   ],
-  providers: [ProductService],
+  providers: [ProductService, WebSocketService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

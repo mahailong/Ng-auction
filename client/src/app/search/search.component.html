@@ -15,9 +15,9 @@
   </div>
   <div class="form-group">
     <label for="category">商品类别</label>
-    <select type="text" name="category"  id="productCategory" placeholder="商品类别" class="form-control">
+    <select formControlName="category" type="text" name="category"  id="productCategory" placeholder="商品类别" class="form-control">
       <option value="-1">全部分类</option>
-      <option *ngFor="let category of categorys" value="category">{{category}}</option>
+      <option *ngFor="let category of categorys">{{category}}</option>
     </select>
   </div>
   <div class="form-group">

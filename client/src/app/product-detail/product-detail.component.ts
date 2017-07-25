@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute }  from '@angular/router';
-import { Product, Comment, ProductService } from '../shared/product.service';
+import {Component, OnInit} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
+import {Product, ProductService, Comment} from "../shared/product.service";
+import "rxjs/Rx";
+import {WebSocketService} from "../shared/web-socket.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-product-detail',
@@ -10,27 +13,34 @@ import { Product, Comment, ProductService } from '../shared/product.service';
 export class ProductDetailComponent implements OnInit {
 
   product: Product;
-
   comments: Comment[];
-
-  newRating: number = 5;
-
-  newComment: string = "";
-
-  isCommentHidden: boolean = true;
+  newRating:number = 5;
+  newComment:string = "";
+  isCommentHidden = true;
+  isWatched:boolean = false;
+  currentBid:number;
+  subscription: Subscription;
 
   constructor(
     private routeInfo: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private wsService: WebSocketService
   ) { }
 
   ngOnInit() {
 
-    let productId: number = this.routeInfo.snapshot.params["id"];
+    let productId:number = this.routeInfo.snapshot.params["id"];;
 
-    this.product = this.productService.getProduct(productId);
+    this.productService.getProduct(productId).subscribe(
+      product => {
+        this.product = product;
+        this.currentBid = product.price;
+      }
+    )
 
-    this.comments = this.productService.getCommentsForProductId(productId)
+    this.productService.getCommentsForProductId(productId).subscribe(
+      comments => this.comments = comments
+    )
 
   }
 
@@ -50,4 +60,22 @@ export class ProductDetailComponent implements OnInit {
     this.isCommentHidden = true;
   }
 
+  watchProduct(){
+    if(this.subscription){
+      this.subscription.unsubscribe();
+      this.isWatched = false;
+      this.subscription = null;
+    }else{
+      this.isWatched = true;
+      var wsUrl = "ws://localhost:3085";
+      //var wsUrl = "ws://"+window.location.hostname+"/websocket";
+      this.subscription = this.wsService.createObservableSocket(wsUrl, this.product.id)
+        .subscribe(
+          products => {
+            let product = products.find(p => p.productId === this.product.id);
+            this.currentBid = product.bid;
+          }
+        );
+    }
+  }
 }
